@@ -105,16 +105,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "smetamath"
-version = "3.0.1-1"
-dependencies = [
- "clap 2.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "filetime 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
- "fnv 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "regex 0.1.71 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
+>>>>>>> 02b4ad4 (Update source code with "cargo fix")
 name = "strsim"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
