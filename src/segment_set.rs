@@ -324,8 +324,8 @@ impl SegmentSet {
         }
 
         // read a file from disk (intercessions have already been checked, but
-        // the first cache has not) and split/parse it; returns by try! on I/O
-        // error
+        // the first cache has not) and split/parse it; returns a Result Err
+        // variant on I/O error
         fn canonicalize_and_read(state: &mut RecState,
                                  path: String)
                                  -> io::Result<Promise<FileSR>> {
