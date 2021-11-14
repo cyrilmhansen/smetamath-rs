@@ -17,7 +17,7 @@ use std::fmt;
 use std::fmt::Write;
 use std::hash::Hash;
 use std::hash::Hasher;
-use std::hash::SipHasher;
+use std::collections::hash_map::DefaultHasher;
 use std::ops::Range;
 use std::u16;
 use verify::ProofBuilder;
@@ -52,7 +52,7 @@ impl Hash for ProofTree {
 impl ProofTree {
     /// Create a new proof tree using the given atom and children.
     pub fn new(parent: &ProofTreeArray, address: StatementAddress, children: Vec<usize>) -> Self {
-        let mut hasher = SipHasher::new();
+        let mut hasher = DefaultHasher::new();
         address.hash(&mut hasher);
         for &ix in &children {
             parent.trees[ix].hash(&mut hasher);
@@ -127,7 +127,7 @@ impl ProofTreeArray {
                stmt: StatementRef)
                -> Result<ProofTreeArray, Diagnostic> {
         let mut arr = ProofTreeArray::default();
-        arr.qed = try!(verify_one(sset, nset, scopes, &mut arr, stmt));
+        arr.qed = verify_one(sset, nset, scopes, &mut arr, stmt)?;
         arr.indent = arr.calc_indent();
         Ok(arr)
     }
@@ -403,7 +403,7 @@ impl<'a> fmt::Display for ProofTreePrinter<'a> {
         for _ in 0..self.indent {
             indent.push(' ');
         }
-        try!(f.write_str(&indent[(self.initial_chr + 2) as usize..]));
+        f.write_str(&indent[(self.initial_chr + 2) as usize..])?;
         let mut chr = self.indent - 1;
         let parents = self.arr.count_parents();
 
@@ -458,10 +458,10 @@ impl<'a> fmt::Display for ProofTreePrinter<'a> {
 
             if chr + (fmt.len() as u16) < self.line_width {
                 chr += (fmt.len() as u16) + 1;
-                try!(f.write_char(' '));
+                f.write_char(' ')?;
             } else {
                 chr = self.indent + (fmt.len() as u16);
-                try!(f.write_str(&indent));
+                f.write_str(&indent)?;
             }
             f.write_str(&fmt)
         };
@@ -470,13 +470,13 @@ impl<'a> fmt::Display for ProofTreePrinter<'a> {
             ProofStyle::Compressed => unimplemented!(),
             ProofStyle::Normal | ProofStyle::Explicit => {
                 for item in self.arr.normal_iter(explicit) {
-                    try!(print_step(item));
+                    print_step(item)?;
                 }
             }
             ProofStyle::Packed |
             ProofStyle::PackedExplicit => {
                 for item in self.arr.to_rpn(&parents, explicit) {
-                    try!(print_step(item));
+                    print_step(item)?;
                 }
             }
         }

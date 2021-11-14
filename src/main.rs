@@ -53,6 +53,9 @@ fn main() {
         .arg(Arg::with_name("split")
             .help("Process files > 1 MiB in multiple segments")
             .long("split"))
+        .arg(Arg::with_name("silent")
+            .help("Do not print source content in the output messages")
+            .long("silent"))
         .arg(Arg::with_name("timing").help("Print milliseconds after each stage").long("timing"))
         .arg(Arg::with_name("verify").help("Check proof validity").long("verify").short("v"))
         .arg(Arg::with_name("trace-recalc")
@@ -115,7 +118,7 @@ fn main() {
 
         let mut lc = LineCache::default();
         for notation in db.diag_notations(types) {
-            print_annotation(&mut lc, notation);
+            print_annotation(&mut lc, notation, matches.is_present("silent"));
         }
 
         if let Some(exps) = matches.values_of_lossy("export") {
@@ -139,7 +142,7 @@ fn main() {
     }
 }
 
-fn print_annotation(lc: &mut LineCache, ann: Notation) {
+fn print_annotation(lc: &mut LineCache, ann: Notation, silent: bool) {
     let mut args = String::new();
     for (id, val) in ann.args {
         args.push_str(&format!(" {}={}", id, val));
@@ -157,14 +160,16 @@ fn print_annotation(lc: &mut LineCache, ann: Notation) {
     let line_end = LineCache::line_end(&ann.source.text, offs);
     let eoffs = (ann.span.end + ann.source.span.start) as usize;
     let line_start = offs - (col - 1) as usize;
-    if eoffs <= line_end {
-        println!("|{}»{}«{}",
-                 String::from_utf8_lossy(&ann.source.text[line_start..offs]),
-                 String::from_utf8_lossy(&ann.source.text[offs..eoffs]),
-                 String::from_utf8_lossy(&ann.source.text[eoffs..line_end]));
-    } else {
-        println!("|{}»{}",
-                 String::from_utf8_lossy(&ann.source.text[line_start..offs]),
-                 String::from_utf8_lossy(&ann.source.text[offs..line_end]));
+    if !silent {
+        if eoffs <= line_end {
+            println!("|{}»{}«{}",
+                    String::from_utf8_lossy(&ann.source.text[line_start..offs]),
+                    String::from_utf8_lossy(&ann.source.text[offs..eoffs]),
+                    String::from_utf8_lossy(&ann.source.text[eoffs..line_end]));
+        } else {
+            println!("|{}»{}",
+                    String::from_utf8_lossy(&ann.source.text[line_start..offs]),
+                    String::from_utf8_lossy(&ann.source.text[offs..line_end]));
+        }
     }
 }
