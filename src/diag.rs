@@ -176,7 +176,7 @@ fn annotate_diagnostic(notes: &mut Vec<Notation>,
         args: Vec<(&'static str, String)>,
     }
 
-    fn ann<'a>(info: &mut AnnInfo<'a>, mut span: Span) {
+    fn ann(info: &mut AnnInfo, mut span: Span) {
         if span.is_null() {
             span = info.stmt.span();
         }

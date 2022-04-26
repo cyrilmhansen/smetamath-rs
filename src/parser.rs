@@ -464,7 +464,7 @@ impl<'a> SegmentRef<'a> {
         StatementRef {
             segment: self,
             statement: &self.segment.statements[index as usize],
-            index: index,
+            index,
         }
     }
 

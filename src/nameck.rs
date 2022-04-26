@@ -427,7 +427,7 @@ impl<'a> NameReader<'a> {
     /// used.
     pub fn new(nameset: &'a Nameset) -> Self {
         NameReader {
-            nameset: nameset,
+            nameset,
             incremental: nameset.options.incremental,
             found_symbol: new_set(),
             not_found_symbol: new_set(),

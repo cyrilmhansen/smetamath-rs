@@ -127,7 +127,7 @@ impl ProofBuilder for () {
 
     fn push(&mut self, _: &mut (), _: ()) {}
 
-    fn build(&mut self, _: StatementAddress, _: (), _: &[u8], _: Range<usize>) -> () {}
+    fn build(&mut self, _: StatementAddress, _: (), _: &[u8], _: Range<usize>) {}
 }
 
 /// Working memory used by the verifier on a segment.  This expands for the
@@ -469,7 +469,7 @@ fn execute_step<P: ProofBuilder>(state: &mut VerifyState<P>,
             state.stack.push((data.clone(),
                               StackSlot {
                 vars: vars.clone(),
-                code: code,
+                code,
                 expr: expr.clone(),
             }));
             return Ok(());
@@ -787,7 +787,7 @@ fn verify_segment(sset: &SegmentSet,
     }
     VerifySegment {
         source: (*sref).clone(),
-        diagnostics: diagnostics,
+        diagnostics,
         scope_usage: state.scoper.into_usage(),
     }
 }
@@ -840,7 +840,7 @@ pub fn verify_one<P: ProofBuilder>(sset: &SegmentSet,
         this_seg: stmt.segment(),
         scoper: ScopeReader::new(scopes),
         nameset: nset,
-        builder: builder,
+        builder,
         order: &sset.order,
         cur_frame: &dummy_frame,
         stack: Vec::new(),

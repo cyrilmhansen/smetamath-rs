@@ -137,7 +137,7 @@ pub fn find_chapter_header(mut buffer: &[u8]) -> Option<usize> {
         return None;
     }
 
-    const LANDING_STRIP: &'static [u8] =
+    const LANDING_STRIP: &[u8] =
         b"#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#";
 
     fn is_real(buffer: &[u8], mut midp: usize) -> Option<usize> {

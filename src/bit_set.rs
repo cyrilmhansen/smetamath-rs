@@ -7,8 +7,8 @@
 //! standard set.mm.  (Thus, on a 64-bit build the fallback code doesn't get
 //! exercised at all without special measures.)
 
-use std::mem::size_of;
 use std::ops::BitOrAssign;
+use std::convert::TryInto;
 use std::slice;
 
 
@@ -21,11 +21,11 @@ pub struct Bitset {
     // of small bitsets at the expense of large ones, as Option<Box> only
     // consumes one word of storage if empty, while Vec and Option<Vec> take
     // three.
-    tail: Option<Box<Vec<usize>>>,
+    tail: Option<Vec<usize>>,
 }
 
 fn bits_per_word() -> usize {
-    size_of::<usize>() * 8
+    usize::BITS.try_into().unwrap()
 }
 
 impl Clone for Bitset {
@@ -33,10 +33,8 @@ impl Clone for Bitset {
     fn clone(&self) -> Bitset {
         Bitset {
             head: self.head,
-            tail: match self.tail {
-                None => None,
-                Some(ref tail) => Some(tail.clone()),
-            },
+            tail: self.tail.as_ref().map(|tail| tail.clone())
+            ,
         }
     }
 }
@@ -54,13 +52,13 @@ impl Bitset {
     fn tail(&self) -> &[usize] {
         match self.tail {
             None => Default::default(),
-            Some(ref bx) => &bx,
+            Some(ref bx) => bx,
         }
     }
 
     fn tail_mut(&mut self) -> &mut Vec<usize> {
         if self.tail.is_none() {
-            self.tail = Some(Box::new(Vec::new()));
+            self.tail = Some(Vec::new());
         }
         self.tail.as_mut().unwrap()
     }
