@@ -72,6 +72,11 @@ fn test_clone() {
     assert!(!bs2.has_bit(5));
     assert!(!bs2.has_bit(7));
     assert!(!bs2.has_bit(8));
+
+    // clone change does not touch original
+    bs2.set_bit(2);
+    assert!(bs2.has_bit(2));
+    assert!(!bs.has_bit(2));
 }
 
   
@@ -94,5 +99,35 @@ fn test_iterator() {
     assert_eq!(None, iter.next());
     assert_eq!(None, iter.next());
 }
+
+#[test]
+fn test_bitor_assign() {
+    let mut bs = bit_set::Bitset::new(); 
+    bs.set_bit(3);
+    bs.set_bit(6);
+    bs.set_bit(1);
+    bs.set_bit(6000);
+    bs.set_bit(6);
+
+    let mut bs2 = bit_set::Bitset::new(); 
+    bs.set_bit(7);
+    bs.set_bit(7000);
+    
+    bs |= &bs2;
+
+    assert!(bs.has_bit(1));
+    assert!(!bs.has_bit(2));
+    assert!(bs.has_bit(3));
+    assert!(bs.has_bit(6));
+    assert!(!bs.has_bit(4));
+    assert!(!bs.has_bit(5));
+    assert!(bs.has_bit(7));
+    assert!(bs.has_bit(6000));
+    assert!(bs.has_bit(7000));
+    assert!(!bs.has_bit(8000));
+
+
+}
+
 
 
