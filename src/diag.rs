@@ -19,6 +19,7 @@ use std::fmt::Display;
 use std::io;
 use std::mem;
 use std::sync::Arc;
+use std::str;
 
 /// List of passes that generate diagnostics, for use with the
 /// `Database::diag_notations` filter.
@@ -331,6 +332,10 @@ fn annotate_diagnostic(notes: &mut Vec<Notation>,
         }
         ProofDvViolation => {
             info.s = "Disjoint variable constraint violated";
+            info.args.push(("label", match str::from_utf8(stmt.label()) {
+                Ok(v) => v.to_string(),
+                Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+            }));
             ann(&mut info, stmt.span());
         }
         ProofExcessEnd => {
@@ -340,6 +345,10 @@ fn annotate_diagnostic(notes: &mut Vec<Notation>,
         ProofIncomplete => {
             info.s = "Proof is incomplete";
             info.level = Warning;
+            info.args.push(("label", match str::from_utf8(stmt.label()) {
+                Ok(v) => v.to_string(),
+                Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+            }));
             ann(&mut info, stmt.span());
         }
         ProofInvalidSave => {

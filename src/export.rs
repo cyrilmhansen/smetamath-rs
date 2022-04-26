@@ -48,12 +48,12 @@ impl fmt::Display for ExportError {
 }
 
 impl error::Error for ExportError {
-    fn description(&self) -> &str {
-        match *self {
-            ExportError::Io(ref err) => err.description(),
-            ExportError::Verify(_) => "verification error",
-        }
-    }
+    // fn description(&self) -> &str {
+    //     match *self {
+    //         ExportError::Io(ref err) => err.description(),
+    //         ExportError::Verify(_) => "verification error",
+    //     }
+    // }
 
     fn cause(&self) -> Option<&dyn error::Error> {
         match *self {
@@ -167,15 +167,16 @@ pub fn export_mmp<W: Write>(sset: &SegmentSet,
     writeln!(out,
              "\n$={}",
              ProofTreePrinter {
-                 sset: sset,
-                 nset: nset,
-                 scope: scope,
-                 thm_label: thm_label,
-                 style: ProofStyle::PackedExplicit,
-                 arr: &arr,
-                 initial_chr: 2,
-                 indent: 6,
-                 line_width: 79,
+                sset: sset,
+                nset: nset,
+                scope: scope,
+                thm_label: thm_label,
+                style: ProofStyle::PackedExplicit,
+                arr: &arr,
+                initial_chr: 2,
+                indent: 6,
+                line_width: 79,
+                (Convert deprecated try!() to "?")
              })?;
 
     writeln!(out, "\n$)")?;
