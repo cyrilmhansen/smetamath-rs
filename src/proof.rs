@@ -677,6 +677,36 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
     }
 }
 
+/// Given an array of items, such that `values[i]` is the cost of the `i`th item,
+/// and the items are labeled by `items` (so only the values `i = items[j]` are
+/// relevant), find the best fit of items whose total cost is no more than `size`,
+/// and return the result in the `included` array.
+///
+/// Implements the algorithm given in https://en.wikipedia.org/wiki/Knapsack_problem#0.2F1_knapsack_problem.
+fn knapsack_fit(items: &[usize], values: &[u16], mut size: usize, included: &mut VecDeque<usize>) {
+    let mut worth: Vec<Vec<u16>> = vec![vec![0; size+1]; items.len()+1];
+    for (i, &item) in items.iter().enumerate() {
+        let value = values[item];
+        for s in 0..size + 1 {
+            worth[i + 1][s] = if s >= value as usize {
+                max(worth[i][s], value + worth[i][s - value as usize])
+            } else {
+                worth[i][s]
+            }
+        }
+    }
+    included.clear();
+    for (i, &item) in items.iter().enumerate().rev() {
+        if worth[i + 1][size] != worth[i][size] {
+            included.push_front(item);
+            size -= values[item] as usize;
+            if size == 0 {
+                break;
+            }
+        }
+    }
+}
+
 
 impl<'a> fmt::Display for ProofTreePrinter<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
