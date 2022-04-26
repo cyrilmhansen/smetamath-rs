@@ -87,6 +87,7 @@ use util::ptr_eq;
 #[derive(Eq,PartialEq,Clone,Debug)]
 struct LongBuf(Arc<Vec<u8>>);
 
+#[allow(clippy::derive_hash_xor_eq)]
 impl Hash for LongBuf {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.len().hash(state);
