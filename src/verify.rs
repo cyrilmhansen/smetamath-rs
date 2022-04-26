@@ -647,7 +647,7 @@ fn verify_proof<'a, P: ProofBuilder>(state: &mut VerifyState<'a, P>,
                 break;
             }
 
-            prepare_step(state, chunk)?;
+            prepare_step(state, chunk, None)?;
         }
 
         // after ) is a packed list of varints.  decode them and execute the
@@ -660,7 +660,7 @@ fn verify_proof<'a, P: ProofBuilder>(state: &mut VerifyState<'a, P>,
             for &ch in chunk {
                 if ch >= b'A' && ch <= b'T' {
                     k = k * 20 + (ch - b'A') as usize;
-                    execute_step(state, k)?;
+                    execute_step(state, k, None)?;
                     k = 0;
                     can_save = true;
                 } else if ch >= b'U' && ch <= b'Y' {
@@ -691,9 +691,30 @@ fn verify_proof<'a, P: ProofBuilder>(state: &mut VerifyState<'a, P>,
             let span = stmt.proof_span(i);
             let chunk = stmt.proof_slice_at(i);
             try_assert!(chunk != b"?", Diagnostic::ProofIncomplete);
-            prepare_step(state, chunk)?;
-            execute_step(state, count)?;
-            count += 1;
+            let step = try!(prepare_step(state, chunk, Some(span)));
+            if let Some(label) = step.label {
+                try_assert!(step.fwdref.is_none(), Diagnostic::ChainBackref(span));
+                let &ix = try!(backrefs.get(label)
+                    .ok_or_else(|| Diagnostic::StepMissing(copy_token(label))));
+                try!(execute_step(state, ix, explicit_stack.as_mut()));
+            } else {
+                try!(execute_step(state, count, explicit_stack.as_mut()));
+                if let Some(fwdref) = step.fwdref {
+                    state.prepared.pop();
+                    save_step(state);
+                    try_assert!(backrefs.insert(fwdref, count).is_none(),
+                                Diagnostic::LocalLabelDuplicate(span));
+                }
+                count += 1;
+            }
+            if step.hyptok.is_some() {
+                if explicit_stack.is_none() {
+                    // lazy initialization so that we don't need to maintain
+                    // this parallel stack if we are not in explicit mode
+                    explicit_stack = Some(vec![None; state.stack.len()-1]);
+                }
+                explicit_stack.as_mut().unwrap().push(step.hyptok);
+            }
         }
     }
 

@@ -724,7 +724,7 @@ impl<'a> fmt::Display for ProofTreePrinter<'a> {
             _ => false,
         };
 
-        let mut stmt_lookup: HashMap<StatementAddress, (&str, Vec<&str>)> = HashMap::new();
+        let mut stmt_lookup: std::collections::HashMap<StatementAddress, (&str, Vec<&str>)> = std::collections::HashMap::new();
         for tree in &self.arr.trees {
             stmt_lookup.entry(tree.address)
                 .or_insert_with(|| {
