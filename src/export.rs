@@ -176,7 +176,6 @@ pub fn export_mmp<W: Write>(sset: &SegmentSet,
                 initial_chr: 2,
                 indent: 6,
                 line_width: 79,
-                (Convert deprecated try!() to "?")
              })?;
 
     writeln!(out, "\n$)")?;
