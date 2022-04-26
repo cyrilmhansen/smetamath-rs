@@ -228,8 +228,8 @@ impl Executor {
         }
 
         Executor {
-            concurrency: concurrency,
-            mutex: mutex,
+            concurrency,
+            mutex,
             work_cv: cv,
         }
     }
@@ -389,7 +389,7 @@ impl Database {
         let exec = Executor::new(options.jobs);
         Database {
             segments: Some(Arc::new(SegmentSet::new(options.clone(), &exec))),
-            options: options,
+            options,
             nameset: None,
             scopes: None,
             verify: None,

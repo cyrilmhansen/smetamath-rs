@@ -61,8 +61,8 @@ impl ProofTree {
             parent.trees[ix].hash(&mut hasher);
         }
         ProofTree {
-            address: address,
-            children: children,
+            address,
+            children,
             hash: hasher.finish(),
         }
     }
@@ -250,20 +250,20 @@ impl ProofTreeArray {
                         0
                     },
                     addr: tree.address,
-                    hyp: hyp,
+                    hyp,
                 }
             } else {
                 RPNStep::Backref {
                     backref: env.backrefs[step],
-                    hyp: hyp,
+                    hyp,
                 }
             };
             env.out.push(step);
         }
         let mut env = Env {
             arr: self,
-            parents: parents,
-            explicit: explicit,
+            parents,
+            explicit,
             out: vec![],
             backrefs: vec![0; self.trees.len()],
             count: 0,
@@ -278,7 +278,7 @@ impl ProofTreeArray {
     pub fn normal_iter(&self, explicit: bool) -> NormalIter {
         NormalIter {
             arr: self,
-            explicit: explicit,
+            explicit,
             stack: vec![(self.qed, 0)],
         }
     }
@@ -321,7 +321,7 @@ impl<'a> Iterator for NormalIter<'a> {
             let out = RPNStep::Normal {
                 fwdref: 0,
                 addr: self.arr.trees[ix].address,
-                hyp: hyp,
+                hyp,
             };
             return Some(out);
         }

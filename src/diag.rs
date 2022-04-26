@@ -183,7 +183,7 @@ fn annotate_diagnostic(notes: &mut Vec<Notation>,
         info.notes.push(Notation {
             source: info.sset.source_info(info.stmt.segment().id).clone(),
             message: info.s,
-            span: span,
+            span,
             level: info.level,
             args: mem::replace(&mut info.args, Vec::new()),
         })
@@ -198,9 +198,9 @@ fn annotate_diagnostic(notes: &mut Vec<Notation>,
     }
 
     let mut info = AnnInfo {
-        notes: notes,
-        sset: sset,
-        stmt: stmt,
+        notes,
+        sset,
+        stmt,
         level: Error,
         s: "",
         args: Vec::new(),

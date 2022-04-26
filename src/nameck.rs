@@ -210,7 +210,7 @@ impl Nameset {
         self.segments.insert(id, seg.clone());
         let sref = SegmentRef {
             segment: &seg,
-            id: id,
+            id,
         };
 
         for symdef in &seg.symbols {
@@ -275,7 +275,7 @@ impl Nameset {
         if let Some(seg) = self.segments.remove(&id) {
             let sref = SegmentRef {
                 segment: &seg,
-                id: id,
+                id,
             };
             let gen = self.generation;
             for &ref symdef in &seg.symbols {
@@ -343,7 +343,7 @@ impl Nameset {
         self.symbols.get(symbol).and_then(|&ref syminfo| {
             syminfo.all.first().map(|&(addr, stype)| {
                 LookupSymbol {
-                    stype: stype,
+                    stype,
                     atom: syminfo.atom,
                     address: addr,
                     const_address: syminfo.constant.first().map(|&(addr, _)| addr),
