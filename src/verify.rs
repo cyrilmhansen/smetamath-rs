@@ -496,9 +496,9 @@ fn execute_step<P: ProofBuilder>(state: &mut VerifyState<P>,
         let mut in_order = true;
         for (ix, hyp) in fref.hypotheses.iter().enumerate() {
             if let Some(tok) = explicit_stack[sbase + ix] {
-                if try!(state.nameset
-                        .lookup_label(tok)
-                        .ok_or(Diagnostic::BadExplicitLabel(copy_token(tok))))
+                if state.nameset
+                    .lookup_label(tok)
+                    .ok_or(Diagnostic::BadExplicitLabel(copy_token(tok)))?
                     .address != hyp.address() {
                     in_order = false;
                     break;
@@ -507,7 +507,7 @@ fn execute_step<P: ProofBuilder>(state: &mut VerifyState<P>,
         }
         if in_order {
             for (ix, hyp) in fref.hypotheses.iter().enumerate() {
-                try!(process_hyp(state, &mut datavec, fref, sbase + ix, hyp));
+                process_hyp(state, &mut datavec, fref, sbase + ix, hyp)?;
             }
         } else {
             // Otherwise, we need to reorder hypotheses
@@ -517,10 +517,10 @@ fn execute_step<P: ProofBuilder>(state: &mut VerifyState<P>,
             for (ix, &ex) in explicit_stack[sbase..].iter().enumerate() {
                 if let Some(tok) = ex {
                     let addr = state.nameset.lookup_label(tok).unwrap().address;
-                    let hyp_ix = try!(fref.hypotheses
+                    let hyp_ix = fref.hypotheses
                         .iter()
                         .position(|hyp| hyp.address() == addr)
-                        .ok_or(Diagnostic::BadExplicitLabel(copy_token(tok))));
+                        .ok_or(Diagnostic::BadExplicitLabel(copy_token(tok)))?;
                     try_assert!(assn_hyps[hyp_ix].is_none(),
                                 Diagnostic::DuplicateExplicitLabel(copy_token(tok)));
                     assn_hyps[hyp_ix] = Some(ix);
@@ -534,18 +534,18 @@ fn execute_step<P: ProofBuilder>(state: &mut VerifyState<P>,
             }
 
             for (ix, slot) in assn_hyps.iter().enumerate() {
-                try!(process_hyp(state,
-                                 &mut datavec,
-                                 fref,
-                                 sbase + ix,
-                                 &fref.hypotheses[slot.unwrap()]));
+                process_hyp(state,
+                            &mut datavec,
+                            fref,
+                            sbase + ix,
+                            &fref.hypotheses[slot.unwrap()]);
             }
         }
 
         explicit_stack.truncate(sbase);
     } else {
         for (ix, hyp) in fref.hypotheses.iter().enumerate() {
-            try!(process_hyp(state, &mut datavec, fref, sbase + ix, hyp));
+            process_hyp(state, &mut datavec, fref, sbase + ix, hyp)?;
         }
     }
 
@@ -691,14 +691,14 @@ fn verify_proof<'a, P: ProofBuilder>(state: &mut VerifyState<'a, P>,
             let span = stmt.proof_span(i);
             let chunk = stmt.proof_slice_at(i);
             try_assert!(chunk != b"?", Diagnostic::ProofIncomplete);
-            let step = try!(prepare_step(state, chunk, Some(span)));
+            let step = prepare_step(state, chunk, Some(span))?;
             if let Some(label) = step.label {
                 try_assert!(step.fwdref.is_none(), Diagnostic::ChainBackref(span));
-                let &ix = try!(backrefs.get(label)
-                    .ok_or_else(|| Diagnostic::StepMissing(copy_token(label))));
-                try!(execute_step(state, ix, explicit_stack.as_mut()));
+                let &ix = backrefs.get(label)
+                    .ok_or_else(|| Diagnostic::StepMissing(copy_token(label)))?;
+                execute_step(state, ix, explicit_stack.as_mut())?;
             } else {
-                try!(execute_step(state, count, explicit_stack.as_mut()));
+                execute_step(state, count, explicit_stack.as_mut())?;
                 if let Some(fwdref) = step.fwdref {
                     state.prepared.pop();
                     save_step(state);

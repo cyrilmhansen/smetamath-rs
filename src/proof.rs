@@ -23,7 +23,6 @@ use std::collections::hash_map::DefaultHasher;
 use std::ops::Range;
 use std::u16;
 use util::HashMap;
-use util::new_map;
 use verify::ProofBuilder;
 use verify::verify_one;
 
@@ -442,10 +441,10 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
         let len = word.len() as u16;
         if self.chr + len < self.p.line_width {
             self.chr += len + 1;
-            try!(self.f.write_char(' '));
+            self.f.write_char(' ')?;
         } else {
             self.chr = self.p.indent + len;
-            try!(self.f.write_str(&self.indent));
+            self.f.write_str(&self.indent)?;
         }
         self.f.write_str(word)
     }
@@ -634,11 +633,11 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
             }
         }
 
-        try!(self.write_word("("));
+        self.write_word("(")?;
         for s in paren_stmt {
-            try!(self.write_word(as_str(s.label())));
+            self.write_word(as_str(s.label()))?;
         }
-        try!(self.write_word(")"));
+        self.write_word(")")?;
         let mut letters: &[u8] = &letters;
         loop {
             let ll = (self.p.line_width - self.chr)
@@ -647,7 +646,7 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
             if ll < letters.len() {
                 let (left, right) = letters.split_at(ll);
                 letters = right;
-                try!(self.write_word(as_str(left)));
+                self.write_word(as_str(left))?;
             } else {
                 return self.write_word(as_str(letters));
             }
@@ -655,13 +654,13 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
     }
 
     fn fmt(&mut self) -> fmt::Result {
-        try!(self.f.write_str(&self.indent[(self.p.initial_chr + 2) as usize..]));
+        self.f.write_str(&self.indent[(self.p.initial_chr + 2) as usize..])?;
 
         match self.p.style {
             ProofStyle::Normal | ProofStyle::Explicit => {
                 self.init_stmt_lookup();
                 for item in self.p.arr.normal_iter(self.p.style.explicit()) {
-                    try!(self.print_step(item));
+                    self.print_step(item)?;
                 }
             }
             ProofStyle::Packed |
@@ -669,44 +668,15 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
                 self.init_stmt_lookup();
                 let parents = self.p.arr.count_parents();
                 for item in self.p.arr.to_rpn(&parents, self.p.style.explicit()) {
-                    try!(self.print_step(item));
+                    self.print_step(item)?;
                 }
             }
-            ProofStyle::Compressed => try!(self.fmt_compressed()),
+            ProofStyle::Compressed => self.fmt_compressed()?,
         }
         self.write_word("$.")
     }
 }
 
-/// Given an array of items, such that `values[i]` is the cost of the `i`th item,
-/// and the items are labeled by `items` (so only the values `i = items[j]` are
-/// relevant), find the best fit of items whose total cost is no more than `size`,
-/// and return the result in the `included` array.
-///
-/// Implements the algorithm given in https://en.wikipedia.org/wiki/Knapsack_problem#0.2F1_knapsack_problem.
-fn knapsack_fit(items: &[usize], values: &[u16], mut size: usize, included: &mut VecDeque<usize>) {
-    let mut worth: Vec<Vec<u16>> = vec![vec![0; size+1]; items.len()+1];
-    for (i, &item) in items.iter().enumerate() {
-        let value = values[item];
-        for s in 0..size + 1 {
-            worth[i + 1][s] = if s >= value as usize {
-                max(worth[i][s], value + worth[i][s - value as usize])
-            } else {
-                worth[i][s]
-            }
-        }
-    }
-    included.clear();
-    for (i, &item) in items.iter().enumerate().rev() {
-        if worth[i + 1][size] != worth[i][size] {
-            included.push_front(item);
-            size -= values[item] as usize;
-            if size == 0 {
-                break;
-            }
-        }
-    }
-}
 
 impl<'a> fmt::Display for ProofTreePrinter<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
