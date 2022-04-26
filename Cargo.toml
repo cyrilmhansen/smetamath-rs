@@ -3,15 +3,15 @@ authors = ["Stefan O'Rear <sorear2@gmail.com>"]
 license = "MIT OR Apache-2.0"
 name = "smetamath"
 readme = "README.md"
-version = "3.0.1-1"
+version = "3.0.1-2"
 description = "A parallel and incremental verifier for Metamath databases"
 repository = "https://github.com/sorear/smetamath-rs"
 
 [dependencies]
-clap = "2.5.2"
-filetime = "0.1.10"
-fnv = "1.0.2"
-regex = "0.1.71"
+clap =  { version = "^2.34.0"}
+filetime = "^0.2.16"
+fnv = "^1.0.2"
+regex = "^1.5.5"
 
 [features]
 sysalloc = []
