@@ -1,3 +1,5 @@
+Repo forked for self study, not to prepare for pull requests, at least until I get more experience with the code.
+-----
 # SMM 3 - a Metamath database processor
 
 ## A what?
