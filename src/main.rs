@@ -1,7 +1,7 @@
 //! A library for manipulating [Metamath](http://us.metamath.org/#faq)
 //! databases.  The entry point for all API operations is in the `database`
 //! module, as is a discussion of the data representation.
-#![warn(missing_docs)]
+//#![warn(missing_docs)]
 #![cfg_attr(feature = "sysalloc", feature(alloc_system))]
 #[macro_use]
 extern crate clap;
@@ -42,11 +42,11 @@ use std::io;
 use std::mem;
 use std::str::FromStr;
 
-fn positive_integer(val: String) -> Result<(), String> {
+pub fn positive_integer(val: String) -> Result<(), String> {
     u32::from_str(&val).map(|_| ()).map_err(|e| format!("{}", e))
 }
 
-fn main() {
+pub fn main() {
     let matches = App::new("smetamath-rs")
         .version(crate_version!())
         .about("A Metamath database verifier and processing tool")
@@ -143,7 +143,7 @@ fn main() {
     }
 }
 
-fn print_annotation(lc: &mut LineCache, ann: Notation, silent: bool) {
+pub fn print_annotation(lc: &mut LineCache, ann: Notation, silent: bool) {
     let mut args = String::new();
     for (id, val) in ann.args {
         args.push_str(&format!(" {}={}", id, val));

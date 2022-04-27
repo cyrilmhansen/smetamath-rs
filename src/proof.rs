@@ -422,7 +422,7 @@ pub struct ProofTreePrinter<'a> {
 
 /// The local variables of `ProofTreePrinter::fmt()`, extracted into a struct
 /// so that the inner functions can be broken out.
-struct ProofTreePrinterImpl<'a, 'b: 'a> {
+pub struct ProofTreePrinterImpl<'a, 'b: 'a> {
     p: &'a ProofTreePrinter<'a>,
     f: &'a mut fmt::Formatter<'b>,
     indent: String,
@@ -433,7 +433,7 @@ struct ProofTreePrinterImpl<'a, 'b: 'a> {
 }
 
 impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
-    fn write_word(&mut self, word: &str) -> fmt::Result {
+    pub fn write_word(&mut self, word: &str) -> fmt::Result {
         let len = word.len() as u16;
         if self.chr + len < self.p.line_width {
             self.chr += len + 1;
@@ -445,7 +445,7 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
         self.f.write_str(word)
     }
 
-    fn estr(&self, hyp: Option<(StatementAddress, usize)>) -> String {
+    pub fn estr(&self, hyp: Option<(StatementAddress, usize)>) -> String {
         if self.p.style.explicit() {
             format!("{}=",
                     match hyp {
@@ -457,7 +457,7 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
         }
     }
 
-    fn print_step(&mut self, item: RPNStep) -> fmt::Result {
+    pub fn print_step(&mut self, item: RPNStep) -> fmt::Result {
         let word = match item {
             RPNStep::Normal { fwdref, addr, hyp } => {
                 if fwdref == 0 {
@@ -487,7 +487,7 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
         self.write_word(&word)
     }
 
-    fn init_stmt_lookup(&mut self) {
+    pub fn init_stmt_lookup(&mut self) {
         for tree in &self.p.arr.trees {
             if !self.stmt_lookup.contains_key(&tree.address) {
                 let label = self.p.sset.statement(tree.address).label();
@@ -514,7 +514,7 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
         }
     }
 
-    fn fmt_compressed(&mut self) -> fmt::Result {
+    pub fn fmt_compressed(&mut self) -> fmt::Result {
         let parents = self.p.arr.count_parents();
         let rpn = self.p.arr.to_rpn(&parents, false);
         let mut proof_ordered_hyps = vec![];
@@ -649,7 +649,7 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
         }
     }
 
-    fn fmt(&mut self) -> fmt::Result {
+    pub fn fmt(&mut self) -> fmt::Result {
         self.f.write_str(&self.indent[(self.p.initial_chr + 2) as usize..])?;
 
         match self.p.style {
@@ -679,7 +679,7 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
 /// and return the result in the `included` array.
 ///
 /// Implements the algorithm given in https://en.wikipedia.org/wiki/Knapsack_problem#0.2F1_knapsack_problem.
-fn knapsack_fit(items: &[usize], values: &[u16], mut size: usize, included: &mut VecDeque<usize>) {
+pub fn knapsack_fit(items: &[usize], values: &[u16], mut size: usize, included: &mut VecDeque<usize>) {
     let mut worth: Vec<Vec<u16>> = vec![vec![0; size+1]; items.len()+1];
     for (i, &item) in items.iter().enumerate() {
         let value = values[item];
