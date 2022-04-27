@@ -25,15 +25,6 @@ pub mod segment_set;
 pub mod util;
 pub mod verify;
 
-#[cfg(test)]
-mod util_tests;
-#[cfg(test)]
-mod parser_tests;
-#[cfg(test)]
-mod bit_set_tests;
-#[cfg(test)]
-mod verify_tests;
-
 use clap::Arg;
 use clap::App;
 use database::Database;
