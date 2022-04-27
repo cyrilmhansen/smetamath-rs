@@ -350,7 +350,6 @@ fn prepare_step<'a, P: ProofBuilder>(state: &mut VerifyState<P>,
 
 // perform a substitution after it has been built in `vars`, appending to
 // `target`
-#[inline(always)]
 fn do_substitute(target: &mut Vec<u8>,
                  frame: &Frame,
                  expr: &VerifyExpr,
@@ -363,7 +362,6 @@ fn do_substitute(target: &mut Vec<u8>,
 }
 
 // like a substitution and equality check, but in one pass
-#[inline(always)]
 fn do_substitute_eq(mut compare: &[u8],
                     frame: &Frame,
                     expr: &VerifyExpr,
@@ -410,7 +408,6 @@ fn do_substitute_raw(target: &mut Vec<u8>, frame: &Frame, nameset: &Nameset) {
 }
 
 // generate a bitmask for a substituted expression
-#[inline(always)]
 fn do_substitute_vars(expr: &[ExprFragment], vars: &[(Range<usize>, Bitset)]) -> Bitset {
     let mut out = Bitset::new();
     for part in expr {
@@ -427,7 +424,6 @@ fn do_substitute_vars(expr: &[ExprFragment], vars: &[(Range<usize>, Bitset)]) ->
 /// Since a variable must be `$f`-declared before it can appear in an `$e` (or
 /// else we'll ignore the `$e`), and that logical file order is reflected in
 /// the stack order of the hypotheses, we can do this in one pass.
-#[inline(always)]
 fn process_hyp<P: ProofBuilder>(state: &mut VerifyState<P>,
                                 datavec: &mut P::Accum,
                                 frame: &Frame,
@@ -456,7 +452,6 @@ fn process_hyp<P: ProofBuilder>(state: &mut VerifyState<P>,
 
 /// This is the main "VM" function, and responsible for ~30% of CPU time during
 /// a one-shot verify operation.
-#[inline(always)]
 fn execute_step<P: ProofBuilder>(state: &mut VerifyState<P>,
                                  index: usize,
                                  explicit: Option<&mut Vec<Option<TokenPtr>>>)

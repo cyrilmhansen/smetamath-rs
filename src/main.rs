@@ -31,6 +31,8 @@ mod util_tests;
 mod parser_tests;
 #[cfg(test)]
 mod bit_set_tests;
+#[cfg(test)]
+mod verify_tests;
 
 use clap::Arg;
 use clap::App;
