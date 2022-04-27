@@ -178,7 +178,7 @@ impl SegmentSet {
             .map(|(&seg_id, &(ref seg, ref _sinfo))| {
                 SegmentRef {
                     id: seg_id,
-                    segment: &seg,
+                    segment: seg,
                 }
             })
             .collect();
@@ -199,7 +199,7 @@ impl SegmentSet {
         self.segments.get(&seg_id).map(|&(ref seg, ref _srcinfo)| {
             SegmentRef {
                 id: seg_id,
-                segment: &seg,
+                segment: seg,
             }
         })
     }

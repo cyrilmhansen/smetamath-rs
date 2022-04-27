@@ -35,7 +35,6 @@ mod bit_set_tests;
 use clap::Arg;
 use clap::App;
 use database::Database;
-use database::DbOptions;
 use diag::DiagnosticClass;
 use diag::Notation;
 use line_cache::LineCache;
@@ -86,13 +85,13 @@ fn main() {
             .multiple(true))
         .get_matches();
 
-    let mut options = DbOptions::default();
-    options.autosplit = matches.is_present("split");
-    options.timing = matches.is_present("timing");
-    options.trace_recalc = matches.is_present("trace-recalc");
-    options.incremental = matches.is_present("repeat");
-    options.jobs = usize::from_str(matches.value_of("jobs").unwrap_or("1"))
-        .expect("validator should check this");
+    let options = database::DbOptions {
+        autosplit: matches.is_present("split"),
+        timing: matches.is_present("timing"),
+        trace_recalc: matches.is_present("trace-recalc"),
+        incremental: matches.is_present("repeat"),
+        jobs: usize::from_str(matches.value_of("jobs").unwrap_or("1"))
+    .expect("validator should check this") };
 
     let mut db = Database::new(options);
 

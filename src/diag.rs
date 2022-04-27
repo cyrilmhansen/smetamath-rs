@@ -185,7 +185,7 @@ fn annotate_diagnostic(notes: &mut Vec<Notation>,
             message: info.s,
             span,
             level: info.level,
-            args: mem::replace(&mut info.args, Vec::new()),
+            args: mem::take(&mut info.args),
         })
     }
 

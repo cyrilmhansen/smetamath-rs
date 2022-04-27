@@ -139,7 +139,7 @@ fn intern(table: &mut AtomTable, tok: TokenPtr) -> Atom {
         return atom;
     }
     table.table.insert(copy_token(tok), next);
-    if table.reverse.len() == 0 {
+    if table.reverse.is_empty() {
         table.reverse.push(Token::default());
     }
     table.reverse.push(copy_token(tok));
@@ -185,7 +185,7 @@ impl Nameset {
         let mut keys_to_remove = Vec::new();
         for (&seg_id, seg) in &self.segments {
             if segs.segment_opt(seg_id)
-                .map_or(true, |sref| !util::ptr_eq::<Segment>(&sref.segment, &seg)) {
+                .map_or(true, |sref| !util::ptr_eq::<Segment>(sref.segment, seg)) {
                 keys_to_remove.push(seg_id);
             }
         }
@@ -260,7 +260,7 @@ impl Nameset {
         }
 
         for &ref dvdef in &seg.global_dvs {
-            let vars = dvdef.vars.iter().map(|v| intern(&mut self.atom_table, &v)).collect();
+            let vars = dvdef.vars.iter().map(|v| intern(&mut self.atom_table, v)).collect();
             self.dv_gen = self.generation;
             slot_insert(&mut self.dv_info,
                         &*self.order,
@@ -314,7 +314,7 @@ impl Nameset {
     ///
     /// If you don't know about the name, use lookup_symbol instead.
     pub fn get_atom(&self, name: TokenPtr) -> Atom {
-        self.atom_table.table.get(name).expect("please only use get_atom for local $v").clone()
+        *self.atom_table.table.get(name).expect("please only use get_atom for local $v")
     }
 
     /// Map atoms back to names.
@@ -328,7 +328,7 @@ impl Nameset {
 
     /// Looks up the address and atom for a statement label.
     pub fn lookup_label(&self, label: TokenPtr) -> Option<LookupLabel> {
-        self.labels.get(label).and_then(|&ref lslot| {
+        self.labels.get(label).and_then(|lslot| {
             lslot.labels.first().map(|&(addr, _)| {
                 LookupLabel {
                     atom: lslot.atom,
@@ -340,7 +340,7 @@ impl Nameset {
 
     /// Looks up the address and type for a math symbol.
     pub fn lookup_symbol(&self, symbol: TokenPtr) -> Option<LookupSymbol> {
-        self.symbols.get(symbol).and_then(|&ref syminfo| {
+        self.symbols.get(symbol).and_then(|syminfo| {
             syminfo.all.first().map(|&(addr, stype)| {
                 LookupSymbol {
                     stype,
@@ -488,8 +488,8 @@ impl<'a> NameReader<'a> {
                 syminfo.float.first().map(|&(addr, (ref label, ref typecode, tcatom))| {
                     LookupFloat {
                         address: addr,
-                        label: &label,
-                        typecode: &typecode,
+                        label,
+                        typecode,
                         typecode_atom: tcatom,
                     }
                 })
@@ -558,6 +558,6 @@ impl NameUsage {
             }
         }
 
-        return true;
+        true
     }
 }

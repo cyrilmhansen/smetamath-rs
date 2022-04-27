@@ -518,10 +518,8 @@ impl Database {
 
     /// Get a statement by label.
     pub fn statement(&mut self, name: &str) -> Option<StatementRef> {
-        match self.name_result().lookup_label(name.as_bytes()) {
-            None => None,
-            Some(lookup) => Some(self.parse_result().statement(lookup.address)),
-        }
+        self.name_result().lookup_label(name.as_bytes()).map( move | lookup|
+            self.parse_result().statement(lookup.address))
     }
 
     /// Export an mmp file for a given statement.
@@ -531,10 +529,9 @@ impl Database {
             let scope = self.scope_result().clone();
             let name = self.name_result().clone();
             let sref = self.statement(&stmt)
-                .expect(format!("Label {} did not correspond to an existing statement",
-                                &stmt)
-                    .as_ref());
-
+            .unwrap_or_else(|| panic!("Label {} did not correspond to an existing statement",
+                &stmt));
+                
             File::create(format!("{}.mmp", stmt.clone()))
                 .map_err(export::ExportError::Io)
                 .and_then(|mut file| export::export_mmp(&parse, &name, &scope, sref, &mut file))

@@ -539,17 +539,11 @@ impl Default for StatementType {
 
 impl StatementType {
     fn takes_label(self) -> bool {
-        match self {
-            Axiom | Provable | Essential | Floating => true,
-            _ => false,
-        }
+        matches!(self, Axiom | Provable | Essential | Floating)
     }
 
     fn takes_math(self) -> bool {
-        match self {
-            Axiom | Provable | Essential | Floating | Disjoint | Constant | Variable => true,
-            _ => false,
-        }
+        matches!(self, Axiom | Provable | Essential | Floating | Disjoint | Constant | Variable)
     }
 }
 
@@ -896,7 +890,7 @@ impl<'a> Scanner<'a> {
             // Restart the function from the beginning to reload self.buffer;
             // doing it this way lets it be kept in a register in the common
             // case
-            return slf.get_raw();
+            slf.get_raw()
         }
 
         let len = self.buffer.len();
@@ -1148,7 +1142,7 @@ impl<'a> Scanner<'a> {
         } else {
             Diagnostic::UnclosedMath
         });
-        return false;
+        false
     }
 
     /// Parses math and proof strings for the current statement and records the
@@ -1219,7 +1213,7 @@ impl<'a> Scanner<'a> {
                     self.diag(Diagnostic::FilenameDollar);
                 }
                 return res;
-            } else if tref.len() > 0 && tref[0] == b'$' {
+            } else if !tref.is_empty() && tref[0] == b'$' {
                 break;
             } else {
                 count += 1;
@@ -1228,7 +1222,7 @@ impl<'a> Scanner<'a> {
         }
         self.diag(Diagnostic::UnclosedInclude);
         self.invalidated = true;
-        return res;
+        res
     }
 
     /// Main function called to read a complete statement from the input buffer.
@@ -1405,8 +1399,8 @@ impl<'a> Scanner<'a> {
             }
         }
 
-        seg.diagnostics = mem::replace(&mut self.diagnostics, Vec::new());
-        seg.span_pool = mem::replace(&mut self.span_pool, Vec::new());
+        seg.diagnostics = mem::take(&mut self.diagnostics);
+        seg.span_pool = mem::take(&mut self.span_pool);
         seg.span_pool.shrink_to_fit();
         seg.statements.shrink_to_fit();
         collect_definitions(&mut seg);
@@ -1482,8 +1476,8 @@ fn collect_definitions(seg: &mut Segment) {
 /// Metamath spec valid label characters are `[-._a-zA-Z0-9]`
 fn is_valid_label(label: &[u8]) -> bool {
     label.iter().all(|&c| {
-        c == b'.' || c == b'-' || c == b'_' || (c >= b'a' && c <= b'z') ||
-        (c >= b'0' && c <= b'9') || (c >= b'A' && c <= b'Z')
+        c == b'.' || c == b'-' || c == b'_' || (b'a'..=b'z').contains(&c) ||
+        (b'0'..=b'9').contains(&c) || (b'A'..=b'Z').contains(&c)
     })
 }
 

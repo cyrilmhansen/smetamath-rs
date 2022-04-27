@@ -175,9 +175,9 @@ impl Hyp {
 
     /// Returns the typecode expected on the stack for this hypothesis.
     pub fn typecode(&self) -> Atom {
-        match self {
-            &Hyp::Essential(_, ref expr) => expr.typecode,
-            &Hyp::Floating(_, _, typecode) => typecode,
+        match *self {
+            Hyp::Essential(_, ref expr) => expr.typecode,
+            Hyp::Floating(_, _, typecode) => typecode,
         }
     }
 }
@@ -578,7 +578,7 @@ fn construct_full_frame<'a>(state: &mut ScopeState<'a>,
     iframe.mandatory_count = iframe.var_list.len();
 
     for &(_, ref vars) in state.gnames.lookup_global_dv() {
-        scan_dv(&mut iframe, &vars)
+        scan_dv(&mut iframe, vars)
     }
 
     for dv in &state.local_dv {

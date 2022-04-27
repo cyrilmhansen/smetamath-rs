@@ -171,7 +171,7 @@ type Result<T> = result::Result<T, Diagnostic>;
 /// discovered until we get here, and a number needs to be assigned to it.
 /// Unfortunately this does mean that it'll be outside the valid range of dv_map
 /// and dv_map checks need to guard against that.
-fn map_var<'a, P: ProofBuilder>(state: &mut VerifyState<'a, P>, token: Atom) -> usize {
+fn map_var<P: ProofBuilder>(state: &mut VerifyState<P>, token: Atom) -> usize {
     let nbit = state.var2bit.len();
     // actually, it _might not_ break anything to have a single variable index
     // allocated by scopeck for all non-$d-ed variables.  after all, they aren't
@@ -185,14 +185,14 @@ fn map_var<'a, P: ProofBuilder>(state: &mut VerifyState<'a, P>, token: Atom) -> 
 fn prepare_hypothesis<'a, P: ProofBuilder>(state: &mut VerifyState<P>, hyp: &'a scopeck::Hyp) {
     let mut vars = Bitset::new();
     let tos = state.stack_buffer.len();
-    match hyp {
-        &Floating(_addr, var_index, _typecode) => {
+    match *hyp {
+        Floating(_addr, var_index, _typecode) => {
             fast_extend(&mut state.stack_buffer,
                         state.nameset.atom_name(state.cur_frame.var_list[var_index]));
             *state.stack_buffer.last_mut().unwrap() |= 0x80;
             vars.set_bit(var_index); // and we have prior knowledge it's identity mapped
         }
-        &Essential(_addr, ref expr) => {
+        Essential(_addr, ref expr) => {
             // this is the first of many subtle variations on the "interpret an
             // ExprFragment" theme in this module.
             for part in &*expr.tail {
@@ -379,7 +379,7 @@ fn do_substitute_eq(mut compare: &[u8],
             return true;
         }
         *compare = &(*compare)[len..];
-        return false;
+        false
     }
 
     for part in &*expr.tail {
@@ -395,7 +395,7 @@ fn do_substitute_eq(mut compare: &[u8],
         return false;
     }
 
-    return compare.is_empty();
+    compare.is_empty()
 }
 
 // substitute with the _names_ of variables, for the final "did we prove what we
@@ -436,16 +436,16 @@ fn process_hyp<P: ProofBuilder>(state: &mut VerifyState<P>,
                                 -> Result<()> {
     let (ref data, ref slot): (P::Item, StackSlot) = state.stack[ix];
     state.builder.push(datavec, data.clone());
-    match hyp {
-        &Floating(_addr, var_index, typecode) => {
+    match *hyp {
+        Floating(_addr, var_index, typecode) => {
             try_assert!(slot.code == typecode, Diagnostic::StepFloatWrongType);
             state.subst_info[var_index] = (slot.expr.clone(), slot.vars.clone());
         }
-        &Essential(_addr, ref expr) => {
+        Essential(_addr, ref expr) => {
             try_assert!(slot.code == expr.typecode, Diagnostic::StepEssenWrongType);
             try_assert!(do_substitute_eq(&state.stack_buffer[slot.expr.clone()],
                                          frame,
-                                         &expr,
+                                         expr,
                                          &state.subst_info,
                                          &state.stack_buffer),
                         Diagnostic::StepEssenWrong);
@@ -498,7 +498,7 @@ fn execute_step<P: ProofBuilder>(state: &mut VerifyState<P>,
             if let Some(tok) = explicit_stack[sbase + ix] {
                 if state.nameset
                     .lookup_label(tok)
-                    .ok_or(Diagnostic::BadExplicitLabel(copy_token(tok)))?
+                    .ok_or_else(|| Diagnostic::BadExplicitLabel(copy_token(tok)))?
                     .address != hyp.address() {
                     in_order = false;
                     break;
@@ -520,7 +520,7 @@ fn execute_step<P: ProofBuilder>(state: &mut VerifyState<P>,
                     let hyp_ix = fref.hypotheses
                         .iter()
                         .position(|hyp| hyp.address() == addr)
-                        .ok_or(Diagnostic::BadExplicitLabel(copy_token(tok)))?;
+                        .ok_or_else(|| Diagnostic::BadExplicitLabel(copy_token(tok)))?;
                     try_assert!(assn_hyps[hyp_ix].is_none(),
                                 Diagnostic::DuplicateExplicitLabel(copy_token(tok)));
                     assn_hyps[hyp_ix] = Some(ix);
@@ -538,7 +538,7 @@ fn execute_step<P: ProofBuilder>(state: &mut VerifyState<P>,
                             &mut datavec,
                             fref,
                             sbase + ix,
-                            &fref.hypotheses[slot.unwrap()]);
+                            &fref.hypotheses[slot.unwrap()])?;
             }
         }
 
@@ -594,7 +594,7 @@ fn finalize_step<P: ProofBuilder>(state: &mut VerifyState<P>) -> Result<P::Item>
                 Diagnostic::ProofWrongTypeEnd);
 
     fast_clear(&mut state.temp_buffer);
-    do_substitute_raw(&mut state.temp_buffer, &state.cur_frame, state.nameset);
+    do_substitute_raw(&mut state.temp_buffer, state.cur_frame, state.nameset);
 
     try_assert!(state.stack_buffer[tos.expr.clone()] == state.temp_buffer[..],
                 Diagnostic::ProofWrongExprEnd);
@@ -658,12 +658,12 @@ fn verify_proof<'a, P: ProofBuilder>(state: &mut VerifyState<'a, P>,
         while i < stmt.proof_len() {
             let chunk = stmt.proof_slice_at(i);
             for &ch in chunk {
-                if ch >= b'A' && ch <= b'T' {
+                if (b'A'..=b'T').contains(&ch) {
                     k = k * 20 + (ch - b'A') as usize;
                     execute_step(state, k, None)?;
                     k = 0;
                     can_save = true;
-                } else if ch >= b'U' && ch <= b'Y' {
+                } else if (b'U'..=b'Y').contains(&ch) {
                     k = k * 5 + 1 + (ch - b'U') as usize;
                     try_assert!(k < (u32::max_value() as usize / 20) - 1,
                                 Diagnostic::ProofMalformedVarint);

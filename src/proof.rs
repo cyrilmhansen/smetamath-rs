@@ -232,7 +232,7 @@ impl ProofTreeArray {
 
         fn output_step(env: &mut Env, step: usize, hyp: Option<(StatementAddress, usize)>) {
             let step = if env.backrefs[step] == 0 {
-                let ref tree = env.arr.trees[step];
+                let  tree = &env.arr.trees[step];
                 for (i, &hix) in tree.children.iter().enumerate() {
                     let nhyp = if env.explicit {
                         Some((tree.address, i))
@@ -382,23 +382,19 @@ impl ProofStyle {
     /// Returns `true` if this is in explicit style (showing proof hypotheses labels
     /// on each step)
     pub fn explicit(self) -> bool {
-        match self {
-            ProofStyle::Explicit |
-            ProofStyle::PackedExplicit => true,
-            _ => false,
-        }
+        matches!(self, ProofStyle::Explicit |
+            ProofStyle::PackedExplicit)
     }
 
     /// Returns `true` if this is in packed style, meaning duplicate subtrees are
     /// referred to by backreferences instead of inlined. (Compressed proofs are
     /// considered packed by this definition.)
     pub fn packed(self) -> bool {
-        match self {
-            ProofStyle::Compressed |
+
+        matches!(self, ProofStyle::Compressed |
             ProofStyle::Packed |
-            ProofStyle::PackedExplicit => true,
-            _ => false,
-        }
+            ProofStyle::PackedExplicit)
+
     }
 }
 
@@ -566,9 +562,9 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
         let mut knapsack = VecDeque::new(); // scratch space used in knapsack_fit
         let mut process_block = |paren_stmt: &mut Vec<StatementRef<'a>>,
                                  length_block: &mut Vec<usize>| {
-            length_block.sort();
+            length_block.sort_unstable();
             while !length_block.is_empty() {
-                knapsack_fit(&length_block,
+                knapsack_fit(length_block,
                              &values,
                              (width - line_pos) as usize,
                              &mut knapsack);
@@ -599,8 +595,8 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
 
         let mut letters: Vec<u8> = vec![];
         for item in &rpn {
-            let (is_fwdref, mut letter) = match item {
-                &RPNStep::Normal { fwdref, addr, .. } => {
+            let (is_fwdref, mut letter) = match *item {
+                RPNStep::Normal { fwdref, addr, .. } => {
                     let stmt = self.p.sset.statement(addr);
                     let pos = if stmt.statement_type() == Floating {
                         let atom = self.p.nset.var_atom(stmt).unwrap();
@@ -616,7 +612,7 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
                         paren_stmt.iter().position(|s| s.address() == addr).unwrap()
                     }))
                 }
-                &RPNStep::Backref { backref, .. } => {
+                RPNStep::Backref { backref, .. } => {
                     (false, frame.mandatory_count + paren_stmt.len() + backref - 1)
                 }
             };
@@ -718,11 +714,8 @@ impl<'a> fmt::Display for ProofTreePrinter<'a> {
         let mut chr = self.indent - 1;
         let parents = self.arr.count_parents();
 
-        let explicit = match self.style {
-            ProofStyle::Explicit |
-            ProofStyle::PackedExplicit => true,
-            _ => false,
-        };
+        let explicit = matches!(self.style, ProofStyle::Explicit |
+            ProofStyle::PackedExplicit);
 
         let mut stmt_lookup: std::collections::HashMap<StatementAddress, (&str, Vec<&str>)> = std::collections::HashMap::new();
         for tree in &self.arr.trees {

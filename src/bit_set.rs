@@ -33,8 +33,7 @@ impl Clone for Bitset {
     fn clone(&self) -> Bitset {
         Bitset {
             head: self.head,
-            tail: self.tail.as_ref().map(|tail| tail.clone())
-            ,
+            tail: self.tail.as_ref().cloned(),
         }
     }
 }
