@@ -24,7 +24,7 @@ pub fn new_map<K, V>() -> HashMap<K, V>
 pub fn new_set<K>() -> HashSet<K>
     where K: Eq + Hash
 {
-    HashSet::<K>::with_hasher(Default::default())
+    HashSet::<K>::with_hasher(std::hash::BuildHasherDefault::default())
 }
 
 /// Quickly determine if two references are pointing at the same object.

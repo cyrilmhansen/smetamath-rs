@@ -496,7 +496,7 @@ fn scan_expression(iframe: &mut InchoateFrame, expr: &[CheckedToken]) -> VerifyE
     }
 
     VerifyExpr {
-        typecode: head.to_owned(),
+        typecode: head,
         rump: open_const..iframe.const_pool.len(),
         tail: tail.into_boxed_slice(),
     }

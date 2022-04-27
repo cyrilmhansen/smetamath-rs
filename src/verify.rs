@@ -44,7 +44,7 @@ use parser::TokenPtr;
 use scopeck;
 use scopeck::ExprFragment;
 use scopeck::Frame;
-use scopeck::Hyp::*;
+use scopeck::Hyp::{Essential, Floating};
 use scopeck::ScopeReader;
 use scopeck::ScopeResult;
 use scopeck::ScopeUsage;
@@ -69,7 +69,7 @@ use util::ptr_eq;
 macro_rules! try_assert {
     ( $cond:expr , $($arg:tt)+ ) => {
         if !$cond {
-            Err($($arg)+)?
+            return Err($($arg)+)
         }
     }
 }
@@ -82,7 +82,7 @@ enum PreparedStep<'a, D> {
     Hyp(Bitset, Atom, Range<usize>, D),
     Assert(&'a Frame),
 }
-use self::PreparedStep::*;
+use self::PreparedStep::{Assert, Hyp};
 
 /// An entry on the stack is notionally just a string of math symbols, but DV
 /// checking is faster if we track disjoint variables as a bit vector, and the

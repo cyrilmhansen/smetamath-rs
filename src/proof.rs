@@ -48,7 +48,7 @@ impl Hash for ProofTree {
     fn hash<H>(&self, state: &mut H)
         where H: Hasher
     {
-        self.hash.hash(state)
+        self.hash.hash(state);
     }
 }
 
@@ -118,7 +118,7 @@ pub enum RPNStep {
 impl ProofTreeArray {
     /// Get the index of a proof tree in the array
     pub fn index(&self, tree: &ProofTree) -> Option<usize> {
-        self.map.get(&tree.hash).cloned()
+        self.map.get(&tree.hash).copied()
     }
 
     /// Create a proof tree array from the proof  a single $p statement,
@@ -683,7 +683,7 @@ fn knapsack_fit(items: &[usize], values: &[u16], mut size: usize, included: &mut
     let mut worth: Vec<Vec<u16>> = vec![vec![0; size+1]; items.len()+1];
     for (i, &item) in items.iter().enumerate() {
         let value = values[item];
-        for s in 0..size + 1 {
+        for s in 0..=size {
             worth[i + 1][s] = if s >= value as usize {
                 max(worth[i][s], value + worth[i][s - value as usize])
             } else {

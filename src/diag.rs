@@ -108,7 +108,24 @@ pub enum Diagnostic {
     VariableMissingFloat(TokenIndex),
     VariableRedeclaredAsConstant(TokenIndex, TokenAddress),
 }
-use self::Diagnostic::*;
+
+use self::Diagnostic::{BadCharacter, BadCommentEnd, BadExplicitLabel, BadFloating,
+     BadLabel, ChainBackref, CommentMarkerNotStart, ConstantNotTopLevel,
+     DisjointSingle, DjNotVariable, DjRepeatedVariable, DuplicateExplicitLabel,
+     DuplicateLabel, EmptyFilename, EmptyMathString, EssentialAtTopLevel,
+     ExprNotConstantPrefix, FilenameDollar, FilenameSpaces, FloatNotConstant,
+     FloatNotVariable, FloatRedeclared, IoError, LocalLabelAmbiguous,
+     LocalLabelDuplicate, MidStatementCommentMarker, MissingLabel, MissingProof,
+     NestedComment, NotActiveSymbol, ProofDvViolation, ProofExcessEnd,
+     ProofIncomplete, ProofInvalidSave, ProofMalformedVarint, ProofNoSteps,
+     ProofUnderflow, ProofUnterminatedRoster, ProofWrongExprEnd, ProofWrongTypeEnd,
+     RepeatedLabel, SpuriousLabel, SpuriousProof, StepEssenWrong,
+     StepEssenWrongType, StepFloatWrongType, StepMissing, StepOutOfRange,
+     StepUsedAfterScope, StepUsedBeforeDefinition, SymbolDuplicatesLabel,
+     SymbolRedeclared, UnclosedBeforeEof, UnclosedBeforeInclude, UnclosedComment,
+     UnclosedInclude, UnclosedMath, UnclosedProof, UnknownKeyword,
+     UnmatchedCloseGroup, VariableMissingFloat, VariableRedeclaredAsConstant};
+
 
 impl From<io::Error> for Diagnostic {
     fn from(err: io::Error) -> Diagnostic {
