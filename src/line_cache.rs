@@ -1,6 +1,7 @@
 //! Utilities for source-offset/line-number mapping.
 
 use std::cmp::Ordering;
+
 use util::HashMap;
 
 const PAGE: usize = 256;
@@ -20,7 +21,6 @@ pub struct LineCache {
     map: HashMap<(usize, usize), Vec<u32>>,
 }
 
-#[inline(never)]
 fn make_index(mut buf: &[u8]) -> Vec<u32> {
     assert!(buf.len() < u32::max_value() as usize - 1);
     let mut out = Vec::with_capacity(buf.len() / PAGE + 1);
@@ -121,4 +121,133 @@ impl LineCache {
         }
         buf.len()
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use line_cache::LineCache;
+
+    use std::convert::TryInto;
+
+    use rand::Rng;
+    use rand::thread_rng;
+    use rand::distributions::Alphanumeric;
+    
+
+    #[test]
+    fn test_from_offset() {
+        let mut lc = LineCache::default();
+        let text = "azerty\r\nazerty4\r\nazerty3\r\n".as_bytes();
+        
+        let (row, col) = lc.from_offset(&text, 10);
+        println!("{}:{}",row,col);
+        assert!(row==2 && col == 3);
+
+        let (row, col) = lc.from_offset(&text, 0);
+        assert!(row==1 && col == 1);
+        println!("{}:{}",row,col);
+
+        let (row, col) = lc.from_offset(&text, 1);
+        assert!(row==1 && col == 2);
+        println!("{}:{}",row,col);
+
+        let (row, col) = lc.from_offset(&text, 19);
+        println!("{}:{}",row,col);
+        assert!(row==3 && col == 3);
+
+        //assert!(false);
+
+    }
+
+    #[test]
+    fn test_line_end() {
+        let mut lc = LineCache::default();
+        let text = "azerty\r\nazerty4\r\nazerty3\r\n".as_bytes();
+
+        let line_end = LineCache::line_end(&text, 10);
+        assert!(line_end==16);
+        println!("{}",line_end);
+
+        let (row_a, col_a) = lc.from_offset(&text, line_end);
+        println!("{}:{}", row_a, col_a);
+
+        let (row_b, col_b) = lc.from_offset(&text, line_end+1);
+        println!("{}:{}",row_b, col_b);
+        assert!(row_b == row_a + 1);
+        assert!(col_b == 1);
+
+        //assert!(false);
+    }
+
+    #[test]
+    fn test_large() {
+
+        // Test using 40meg of 30 random ascii character lines
+        let test_size = 40*1024*1024;
+        let row_size = 30;
+        let row_end = 31;
+        let nb_rows = test_size / (row_size +1);
+
+        let mut  row_buf : String = thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(row_size)
+        .map(char::from)
+        .collect();
+
+        row_buf += "\n";
+
+        let mut buf_text : String = String::new();
+
+        for _ in 1..nb_rows {
+            buf_text += &row_buf;
+        }
+
+        let text = buf_text.as_bytes();
+
+        let mut lc = LineCache::default();
+
+        let line_end = LineCache::line_end(&text, 20);
+        println!("{}",line_end);
+        assert!(line_end==30);
+
+        let (row_a, col_a) = lc.from_offset(&text, line_end);
+        println!("{}:{}",row_a,col_a);
+        assert!(row_a == 1);
+        assert!(col_a == row_end);
+
+        let (row_b, col_b) = lc.from_offset(&text, line_end+1);
+        println!("{}:{}",row_b,col_b);
+        assert!(row_b == row_a+1);
+        assert!(col_b == 1);
+
+        for _ in 0..20 {
+            // random offset
+            let large_offset : usize = thread_rng().gen_range(0..test_size);
+
+            let (row_c, col_c) = lc.from_offset(&text, large_offset);
+            println!("{}:{}",row_c,col_c);
+
+            let expected_row  =  1 + (large_offset / 31);
+            let expected_col  =  1 + (large_offset % 31);
+            println!("{}:{}", expected_row, expected_col);
+
+            assert!(row_c == expected_row.try_into().unwrap());
+            assert!(col_c == expected_col.try_into().unwrap());
+
+            let row_end = LineCache::line_end(&text, large_offset);
+            let expected_row_end  =  expected_row * 31 - 1;
+
+            println!("{}:{}",expected_row_end, row_end);
+            assert!(row_end == expected_row_end.try_into().unwrap());
+
+        }
+
+        //assert!(false);
+    }
+
+
+   
+
+  
+
 }

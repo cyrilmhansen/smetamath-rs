@@ -9,6 +9,9 @@ extern crate filetime;
 extern crate fnv;
 extern crate regex;
 
+#[cfg(test)]
+extern crate rand; // TODO fix edition
+
 #[cfg(feature = "sysalloc")]
 extern crate alloc_system;
 
@@ -167,3 +170,6 @@ pub fn print_annotation(lc: &mut LineCache, ann: Notation, silent: bool) {
         }
     }
 }
+
+
+
