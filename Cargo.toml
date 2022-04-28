@@ -19,17 +19,18 @@ regex = "^1.5.5"
 rand = "0.8.5"
 
 [features]
-sysalloc = []
 
 [profile]
 
 [profile.release]
-#codegen-units = 1
-debug = true
+opt-level = 3
+codegen-units = 1
+lto = true
+strip = "debuginfo"
 
 [profile.dev]
 opt-level = 1
-#codegen-units = 4
+codegen-units = 1
 
 [profile.test]
-#codegen-units = 4
+codegen-units = 1
