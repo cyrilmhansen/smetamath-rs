@@ -29,7 +29,6 @@ fn bits_per_word() -> usize {
 }
 
 impl Clone for Bitset {
-    #[inline]
     fn clone(&self) -> Bitset {
         Bitset {
             head: self.head,
