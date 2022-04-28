@@ -120,7 +120,6 @@ fn aligned_part(buffer: &[u8]) -> (usize, &[u32]) {
 ///
 /// This runs on the full file on every reload, but it's also pretty good at
 /// running at full memory bandwidth.
-#[inline(never)]
 pub fn find_chapter_header(mut buffer: &[u8]) -> Option<usize> {
     // returns something pointing at four consequtive puncts, guaranteed to find
     // if there is a run of 79

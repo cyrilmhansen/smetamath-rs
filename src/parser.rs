@@ -452,7 +452,6 @@ pub struct SegmentRef<'a> {
 impl<'a> Deref for SegmentRef<'a> {
     type Target = Arc<Segment>;
 
-    #[inline]
     fn deref(&self) -> &Arc<Segment> {
         self.segment
     }
@@ -768,7 +767,6 @@ pub struct TokenRef<'a> {
 impl<'a> Deref for TokenRef<'a> {
     type Target = [u8];
 
-    #[inline]
     fn deref(&self) -> &[u8] {
         self.slice
     }
@@ -882,8 +880,6 @@ impl<'a> Scanner<'a> {
     /// branch-free in typical cases, but it would be extremely fiddly and has
     /// not been attempted.
     fn get_raw(&mut self) -> Span {
-        #[inline(never)]
-        #[cold]
         fn badchar(slf: &mut Scanner, ix: usize) -> Span {
             let ch = slf.buffer[ix];
             slf.diag(Diagnostic::BadCharacter(ix, ch));

@@ -359,8 +359,7 @@ fn time<R, F: FnOnce() -> R>(opts: &DbOptions, name: &str, f: F) -> R {
     let now = Instant::now();
     let ret = f();
     if opts.timing {
-        // no as_msecs :(
-        println!("{} {}ms", name, (now.elapsed() * 1000).as_secs());
+        println!("{} {}ms", name, now.elapsed().as_millis());
     }
     ret
 }
