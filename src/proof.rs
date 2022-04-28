@@ -433,6 +433,7 @@ pub struct ProofTreePrinterImpl<'a, 'b: 'a> {
 }
 
 impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
+    /// todo doc
     pub fn write_word(&mut self, word: &str) -> fmt::Result {
         let len = word.len() as u16;
         if self.chr + len < self.p.line_width {
@@ -445,6 +446,7 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
         self.f.write_str(word)
     }
 
+    /// todo doc
     pub fn estr(&self, hyp: Option<(StatementAddress, usize)>) -> String {
         if self.p.style.explicit() {
             format!("{}=",
@@ -457,6 +459,7 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
         }
     }
 
+    /// todo doc
     pub fn print_step(&mut self, item: RPNStep) -> fmt::Result {
         let word = match item {
             RPNStep::Normal { fwdref, addr, hyp } => {
@@ -487,6 +490,7 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
         self.write_word(&word)
     }
 
+        /// todo doc
     pub fn init_stmt_lookup(&mut self) {
         for tree in &self.p.arr.trees {
             if !self.stmt_lookup.contains_key(&tree.address) {
@@ -514,6 +518,7 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
         }
     }
 
+    /// todo doc
     pub fn fmt_compressed(&mut self) -> fmt::Result {
         let parents = self.p.arr.count_parents();
         let rpn = self.p.arr.to_rpn(&parents, false);
@@ -649,6 +654,7 @@ impl<'a, 'b> ProofTreePrinterImpl<'a, 'b> {
         }
     }
 
+    /// todo doc
     pub fn fmt(&mut self) -> fmt::Result {
         self.f.write_str(&self.indent[(self.p.initial_chr + 2) as usize..])?;
 
@@ -705,6 +711,7 @@ pub fn knapsack_fit(items: &[usize], values: &[u16], mut size: usize, included: 
 
 
 impl<'a> fmt::Display for ProofTreePrinter<'a> {
+    /// todo doc
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut indent = "\n".to_string();
         for _ in 0..self.indent {

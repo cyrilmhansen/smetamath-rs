@@ -99,6 +99,7 @@ struct LocalDvInfo {
 }
 
 #[derive(Clone,Debug)]
+/// todo doc
 pub struct LocalEssentialInfo<'a> {
     valid: GlobalRange,
     _label: TokenPtr<'a>,

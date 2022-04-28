@@ -1,7 +1,7 @@
 //! A library for manipulating [Metamath](http://us.metamath.org/#faq)
 //! databases.  The entry point for all API operations is in the `database`
 //! module, as is a discussion of the data representation.
-//#![warn(missing_docs)]
+#![warn(missing_docs)]
 
 
 pub mod bit_set;
@@ -28,10 +28,12 @@ use std::io;
 use std::mem;
 use std::str::FromStr;
 
+/// parse unsigned integer
 pub fn positive_integer(val: String) -> Result<(), String> {
     u32::from_str(&val).map(|_| ()).map_err(|e| format!("{}", e))
 }
 
+/// main function
 pub fn main() {
     let matches = App::new("smetamath-rs")
         .version(crate_version!())
@@ -129,6 +131,7 @@ pub fn main() {
     }
 }
 
+/// todo doc
 pub fn print_annotation(lc: &mut LineCache, ann: Notation, silent: bool) {
     let mut args = String::new();
     for (id, val) in ann.args {
