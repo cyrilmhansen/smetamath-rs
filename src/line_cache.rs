@@ -2,7 +2,7 @@
 
 use std::cmp::Ordering;
 
-use util::HashMap;
+use crate::util::HashMap;
 
 const PAGE: usize = 256;
 
@@ -125,7 +125,7 @@ impl LineCache {
 
 #[cfg(test)]
 mod tests {
-    use line_cache::LineCache;
+    use crate::line_cache::LineCache;
 
     use std::convert::TryInto;
 

@@ -6,6 +6,7 @@ readme = "README.md"
 version = "3.0.1-2"
 description = "A parallel and incremental verifier for Metamath databases"
 repository = "https://github.com/sorear/smetamath-rs"
+edition = "2021"
 
 
 [dependencies]

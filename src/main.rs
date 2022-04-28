@@ -30,10 +30,10 @@ pub mod verify;
 
 use clap::Arg;
 use clap::App;
-use database::Database;
-use diag::DiagnosticClass;
-use diag::Notation;
-use line_cache::LineCache;
+use crate::database::Database;
+use crate::diag::DiagnosticClass;
+use crate::diag::Notation;
+use crate::line_cache::LineCache;
 use std::io;
 use std::mem;
 use std::str::FromStr;

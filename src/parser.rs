@@ -45,7 +45,7 @@
 //! `SegmentId` and `SegmentRef` cover the same use cases for segments, although
 //! it makes no sense to have a segment-local segment reference.
 
-use diag::Diagnostic;
+use crate::diag::Diagnostic;
 use std::cmp;
 use std::cmp::Ordering;
 use std::mem;
@@ -1568,15 +1568,15 @@ pub fn dummy_segment(diag: Diagnostic) -> Arc<Segment> {
 #[cfg(test)]
 mod tests {
 
-    use database::Database;
-    use database::DbOptions;
-    use diag::Diagnostic;
-    use parser::SegmentOrder;
-    use parser::StatementAddress;
-    use parser::StatementType;
-    use parser::Span;
-    use parser::NO_STATEMENT;
-    use parser::Comparer;
+    use crate::database::Database;
+    use crate::database::DbOptions;
+    use crate::diag::Diagnostic;
+    use crate::parser::SegmentOrder;
+    use crate::parser::StatementAddress;
+    use crate::parser::StatementType;
+    use crate::parser::Span;
+    use crate::parser::NO_STATEMENT;
+    use crate::parser::Comparer;
     use std::cmp::Ordering;
 
     #[test]

@@ -166,7 +166,7 @@ impl<'a> Iterator for BitsetIter<'a> {
 #[cfg(test)]
 mod tests {
 
-    use bit_set::Bitset;
+    use crate::bit_set::Bitset;
 
     #[test]
     fn test_set_bit() {
